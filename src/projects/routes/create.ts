@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import * as validators from 'express-validator';
 
 interface CreateProjectDto {
   name: string;
@@ -30,60 +29,38 @@ function createProject(dto: CreateProjectDto, tenantId: string): Project {
   };
 }
 
-module.exports.createProject_2020_09_19 = [
-  validators.body('name').isString().notEmpty(),
-  validators.body('code').isString().notEmpty(),
-  validators.header('tenantId').isUUID(),
-  (req: Request<CreateProjectDto>, res: Response) => {
-    const errors = validators.validationResult(req);
+module.exports.createProject_2020_09_19 = (
+  req: Request<CreateProjectDto>,
+  res: Response
+) => {
+  const body = req.body;
 
-    if (!errors.isEmpty()) {
-      res.status(400).json({
-        errors: errors.array(),
-      });
-      return;
-    }
+  const dto = {
+    name: body.name,
+    code: body.code,
+  };
 
-    const body = req.body;
+  const tenantId = req.header('tenantId');
 
-    const dto = {
-      name: body.name,
-      code: body.code,
-    };
+  const project = createProject(dto, tenantId);
 
-    const tenantId = req.header('tenantId');
+  res.json(project);
+};
 
-    const project = createProject(dto, tenantId);
+module.exports.createProject_2020_05_01 = (
+  req: Request<CreateProjectDto & { tenantId: string }>,
+  res: Response
+) => {
+  const body = req.body;
 
-    res.json(project);
-  },
-];
+  const dto = {
+    name: body.name,
+    code: body.code,
+  };
 
-module.exports.createProject_2020_05_01 = [
-  validators.body('name').isString().notEmpty(),
-  validators.body('code').isString().notEmpty(),
-  validators.body('tenantId').isUUID(),
-  (req: Request<CreateProjectDto & { tenantId: string }>, res: Response) => {
-    const errors = validators.validationResult(req);
+  const tenantId = body.tenantId;
 
-    if (!errors.isEmpty()) {
-      res.status(400).json({
-        errors: errors.array(),
-      });
-      return;
-    }
+  const project = createProject(dto, tenantId);
 
-    const body = req.body;
-
-    const dto = {
-      name: body.name,
-      code: body.code,
-    };
-
-    const tenantId = body.tenantId;
-
-    const project = createProject(dto, tenantId);
-
-    res.json(project);
-  },
-];
+  res.json(project);
+};
