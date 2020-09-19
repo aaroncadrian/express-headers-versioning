@@ -19,9 +19,7 @@ const versioningUtil = new HeaderVersioningUtil({
 app.post(
   '/projects',
   versioningUtil.mapVersions({
-    // @ts-ignore
     '2020-09-19': createProject_2020_09_19,
-    // @ts-ignore
     '2020-05-01': createProject_2020_05_01,
   })
 );

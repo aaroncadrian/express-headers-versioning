@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
-import { NextFunction, Request, RequestHandler, Response } from 'express';
+import { RequestHandler } from 'express';
+import * as core from 'express-serve-static-core';
 
 export interface Options {
   headerKey: string;
@@ -12,13 +13,21 @@ export class HeaderVersioningUtil {
     this.headerKey = options.headerKey;
   }
 
-  mapVersions(versionMap: _.Dictionary<RequestHandler>): RequestHandler {
-    return (req: Request, res: Response, next: NextFunction) => {
+  mapVersions<
+    P = core.ParamsDictionary,
+    ResBody = any,
+    ReqBody = any,
+    ReqQuery = core.Query
+  >(
+    versionMap: _.Dictionary<RequestHandler<P, ResBody, ReqBody, ReqQuery>>
+  ): RequestHandler<P, ResBody, ReqBody, ReqQuery> {
+    return (req, res, next) => {
       const version = req.header(this.headerKey);
 
       const handler = versionMap[version];
 
       if (!handler) {
+        // @ts-ignore
         res.status(403).json({
           error: `Unsupported Version: ${version}`,
         });
