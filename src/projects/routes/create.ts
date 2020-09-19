@@ -1,4 +1,5 @@
 import { Response, Request, NextFunction } from 'express';
+import * as validators from 'express-validator';
 
 interface CreateProjectDto {
   name: string;
@@ -36,38 +37,40 @@ module.exports.createProject_2020_09_19 = (req, res, next) => {
   });
 };
 
-module.exports.createProject_2020_05_01 = (
-  req: Request<CreateProjectDto & { tenantId: string }>,
-  res: Response,
-  next: NextFunction
-) => {
-  // get account ID and contract ID from project.
+module.exports.createProject_2020_05_01 = [
+  (
+    req: Request<CreateProjectDto & { tenantId: string }>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    // get account ID and contract ID from project.
 
-  console.log(req.body);
+    console.log(req.body);
 
-  const body = req.body || {};
+    const body = req.body || {};
 
-  const dto = {
-    name: body.name,
-    code: body.code,
-  };
+    const dto = {
+      name: body.name,
+      code: body.code,
+    };
 
-  const tenantId = body.tenantId;
+    const tenantId = body.tenantId;
 
-  if (!validateTenantId(tenantId)) {
-    res.status(403).json({
-      error: {
-        tenantId: 'tenantId is required in request body',
-      },
-    });
+    if (!validateTenantId(tenantId)) {
+      res.status(403).json({
+        error: {
+          tenantId: 'tenantId is required in request body',
+        },
+      });
 
-    return;
-  }
+      return;
+    }
 
-  const project = createProject(dto, tenantId);
+    const project = createProject(dto, tenantId);
 
-  res.json(project);
-};
+    res.json(project);
+  },
+];
 
 function validateTenantId(tenantId: string): boolean {
   return !!tenantId;
