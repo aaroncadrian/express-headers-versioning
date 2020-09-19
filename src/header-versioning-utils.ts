@@ -20,22 +20,39 @@ export class HeaderVersioningUtil {
     ReqQuery = core.Query
   >(
     versionMap: _.Dictionary<RequestHandler<P, ResBody, ReqBody, ReqQuery>>
-  ): RequestHandler<P, ResBody, ReqBody, ReqQuery> {
-    return (req, res, next) => {
-      const version = req.header(this.headerKey);
+  ): RequestHandler<P, ResBody, ReqBody, ReqQuery>[] {
+    const getVersion = (req) => req.header(this.headerKey);
 
-      const handler = versionMap[version];
+    const getHandler = (req) => versionMap[getVersion(req)];
 
-      if (!handler) {
-        // @ts-ignore
-        res.status(403).json({
-          error: `Unsupported Version: ${version}`,
-        });
+    return [
+      (req, res, next) => {
+        const version = getVersion(req);
 
-        return;
-      }
+        if (!!version) {
+          next();
+        } else {
+          // @ts-ignore
+          res.status(403).json({
+            error: `${this.headerKey} header is required.`,
+          });
+        }
+      },
+      (req, res, next) => {
+        const version = getVersion(req);
 
-      handler(req, res, next);
-    };
+        if (version in versionMap) {
+          next();
+        } else {
+          // @ts-ignore
+          res.status(403).json({
+            error: `Unsupported Version: ${version}`,
+          });
+        }
+      },
+      (req, res, next) => {
+        getHandler(req)(req, res, next);
+      },
+    ];
   }
 }
