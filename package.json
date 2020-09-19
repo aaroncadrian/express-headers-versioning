@@ -6,6 +6,7 @@
   "author": "Aaron Adrian <aaroncadrian@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "watch": "nodemon --watch ./src/**/*.ts --exec 'yarn' start",
     "start": "ts-node src/server.ts"
   },
   "dependencies": {
