@@ -29,7 +29,7 @@ function createProject(dto: CreateProjectDto, tenantId: string): Project {
   };
 }
 
-module.exports.createProject_2020_09_19 = (
+export const createProject_2020_09_19 = (
   req: Request<CreateProjectDto>,
   res: Response
 ) => {
@@ -40,14 +40,14 @@ module.exports.createProject_2020_09_19 = (
     code: body.code,
   };
 
-  const tenantId = req.header('tenantId');
+  const tenantId = req.header('X-Tenant-Id');
 
   const project = createProject(dto, tenantId);
 
   res.json(project);
 };
 
-module.exports.createProject_2020_05_01 = (
+export const createProject_2020_05_01 = (
   req: Request<CreateProjectDto & { tenantId: string }>,
   res: Response
 ) => {
