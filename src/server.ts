@@ -1,8 +1,10 @@
-const express = require('express');
+import { NextFunction, Request, Response } from 'express';
 import {
   createProject_2020_05_01,
   createProject_2020_09_19,
 } from './projects/routes/create';
+
+const express = require('express');
 
 const bodyParser = require('body-parser');
 
@@ -10,7 +12,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.post('/projects', (req, res, next) => {
+app.post('/projects', (req: Request, res: Response, next: NextFunction) => {
   const version = req.header('X-Version');
 
   const versionMap = {
