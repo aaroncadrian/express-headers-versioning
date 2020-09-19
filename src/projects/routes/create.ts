@@ -1,4 +1,4 @@
-import { Response, Request, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import * as validators from 'express-validator';
 
 interface CreateProjectDto {
@@ -38,16 +38,20 @@ module.exports.createProject_2020_09_19 = (req, res, next) => {
 };
 
 module.exports.createProject_2020_05_01 = [
-  (
-    req: Request<CreateProjectDto & { tenantId: string }>,
-    res: Response,
-    next: NextFunction
-  ) => {
-    // get account ID and contract ID from project.
+  validators.body('name').isString().notEmpty(),
+  validators.body('code').isString().notEmpty(),
+  validators.body('tenantId').isUUID(),
+  (req: Request<CreateProjectDto & { tenantId: string }>, res: Response) => {
+    const errors = validators.validationResult(req);
 
-    console.log(req.body);
+    if (!errors.isEmpty()) {
+      res.status(400).json({
+        errors: errors.array(),
+      });
+      return;
+    }
 
-    const body = req.body || {};
+    const body = req.body;
 
     const dto = {
       name: body.name,
@@ -56,22 +60,8 @@ module.exports.createProject_2020_05_01 = [
 
     const tenantId = body.tenantId;
 
-    if (!validateTenantId(tenantId)) {
-      res.status(403).json({
-        error: {
-          tenantId: 'tenantId is required in request body',
-        },
-      });
-
-      return;
-    }
-
     const project = createProject(dto, tenantId);
 
     res.json(project);
   },
 ];
-
-function validateTenantId(tenantId: string): boolean {
-  return !!tenantId;
-}
