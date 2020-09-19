@@ -30,12 +30,34 @@ function createProject(dto: CreateProjectDto, tenantId: string): Project {
   };
 }
 
-module.exports.createProject_2020_09_19 = (req, res, next) => {
-  res.json({
-    ok: true,
-    version: '2020-05-01',
-  });
-};
+module.exports.createProject_2020_09_19 = [
+  validators.body('name').isString().notEmpty(),
+  validators.body('code').isString().notEmpty(),
+  validators.header('tenantId').isUUID(),
+  (req: Request<CreateProjectDto>, res: Response) => {
+    const errors = validators.validationResult(req);
+
+    if (!errors.isEmpty()) {
+      res.status(400).json({
+        errors: errors.array(),
+      });
+      return;
+    }
+
+    const body = req.body;
+
+    const dto = {
+      name: body.name,
+      code: body.code,
+    };
+
+    const tenantId = req.header('tenantId');
+
+    const project = createProject(dto, tenantId);
+
+    res.json(project);
+  },
+];
 
 module.exports.createProject_2020_05_01 = [
   validators.body('name').isString().notEmpty(),
